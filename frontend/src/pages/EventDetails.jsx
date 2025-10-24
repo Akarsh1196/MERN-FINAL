@@ -10,7 +10,7 @@ import {
   HiClock, 
   HiUsers,
   HiShare,
-  HiEdit,
+  HiPencil,
   HiTrash,
   HiArrowLeft,
   HiCheckCircle,

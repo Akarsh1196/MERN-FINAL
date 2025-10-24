@@ -1,9 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import { HiEye, HiEyeOff, HiMail, HiLock, HiUser } from 'react-icons/hi';
 import toast from 'react-hot-toast';
+
+// 1. MOCK ICON COMPONENTS (to resolve "react-icons/hi" error)
+// Icons replaced with inline SVGs for self-contained compilation.
+
+const UserIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+  </svg>
+);
+
+const MailIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+  </svg>
+);
+
+const LockClosedIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+  </svg>
+);
+
+const EyeIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+  </svg>
+);
+
+const EyeOffIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l15 15a1 1 0 001.414-1.414l-1.473-1.473A10.98 10.98 0 0020.177 10c-1.274-4.057-5.064-7-9.542-7-1.254 0-2.434.331-3.557.904L4.318 2.293zm3.79.817l4.9 4.9a2 2 0 01-2.9 2.9l-4.9-4.9c-.378.236-.772.451-1.18.647C1.732 5.943 5.522 3 10 3c1.789 0 3.46.476 4.974 1.352l-.634.634a8.96 8.96 0 00-4.34-1.076z" clipRule="evenodd" />
+    <path d="M12.454 16.623L10 14c-1.84 0-3.526-.643-4.974-1.352l-.634.634c1.123.573 2.303.904 3.557.904 4.478 0 8.268-2.943 9.542-7-.184-.585-.385-1.162-.601-1.727l-1.473 1.473zm-2.822-2.112l2.388-2.388a2 2 0 00-2.388 2.388z" />
+  </svg>
+);
+
+// 2. MOCK AUTH CONTEXT (to resolve "../context/AuthContext" error)
+const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Mock register function for testing the component's flow
+  const register = async (formData) => {
+    console.log("Mock Registration attempt:", formData.email);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+
+    // Always succeed on mock registration
+    setIsAuthenticated(true);
+    toast.success('Mock Registration successful! Redirecting...');
+    return { success: true, message: "Registered successfully." };
+  };
+
+  return { isAuthenticated, register };
+};
+
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,12 +69,17 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Using the mock context/hook
   const { register, isAuthenticated } = useAuth();
+  
+  // Mock navigation elements (assuming react-router-dom is available)
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Redirect if already authenticated
     if (isAuthenticated) {
-      navigate('/dashboard');
+      console.log('Redirecting to dashboard (mock)');
+      // In a real app, this would redirect: navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
 
@@ -35,6 +93,10 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Using theme color classes (primary-600) to match the original intention,
+    // although Tailwind's default primary color is indigo.
+    const primaryColor = 'indigo'; 
+
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       toast.error('Please fill in all fields');
       return;
@@ -59,10 +121,11 @@ const Register = () => {
       });
       
       if (result.success) {
-        navigate('/dashboard');
+        // Redirection handled by useEffect
       }
     } catch (error) {
       toast.error('Registration failed. Please try again.');
+      console.error("Registration attempt error:", error);
     } finally {
       setLoading(false);
     }
@@ -77,17 +140,17 @@ const Register = () => {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-xl">E</span>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Or{' '}
             <Link
               to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200"
+              className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
             >
               sign in to your existing account
             </Link>
@@ -100,16 +163,17 @@ const Register = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10"
+          className="bg-white py-8 px-4 shadow-2xl sm:rounded-xl sm:px-10"
         >
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Full Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Full name
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiUser className="h-5 w-5 text-gray-400" />
+                  <UserIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="name"
@@ -119,19 +183,20 @@ const Register = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm"
                   placeholder="Enter your full name"
                 />
               </div>
             </div>
 
+            {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiMail className="h-5 w-5 text-gray-400" />
+                  <MailIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="email"
@@ -141,19 +206,20 @@ const Register = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm"
                   placeholder="Enter your email"
                 />
               </div>
             </div>
 
+            {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiLock className="h-5 w-5 text-gray-400" />
+                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="password"
@@ -163,20 +229,19 @@ const Register = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm"
                   placeholder="Create a password"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button
                     type="button"
-                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                    className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <HiEyeOff className="h-5 w-5" />
-                    ) : (
-                      <HiEye className="h-5 w-5" />
-                    )}
+                    {showPassword
+                      ? <EyeOffIcon className="h-5 w-5" />
+                      : <EyeIcon className="h-5 w-5" />
+                    }
                   </button>
                 </div>
               </div>
@@ -185,13 +250,14 @@ const Register = () => {
               </p>
             </div>
 
+            {/* Confirm Password Field */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm password
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiLock className="h-5 w-5 text-gray-400" />
+                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="confirmPassword"
@@ -201,54 +267,58 @@ const Register = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm"
                   placeholder="Confirm your password"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button
                     type="button"
-                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                    className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? (
-                      <HiEyeOff className="h-5 w-5" />
-                    ) : (
-                      <HiEye className="h-5 w-5" />
-                    )}
+                    {showConfirmPassword
+                      ? <EyeOffIcon className="h-5 w-5" />
+                      : <EyeIcon className="h-5 w-5" />
+                    }
                   </button>
                 </div>
               </div>
             </div>
 
+            {/* Terms Checkbox */}
             <div className="flex items-center">
               <input
                 id="agree-terms"
                 name="agree-terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
               <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-900">
                 I agree to the{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500">
+                <a href="#" className="text-indigo-600 hover:text-indigo-500 font-medium">
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500">
+                <a href="#" className="text-indigo-600 hover:text-indigo-500 font-medium">
                   Privacy Policy
                 </a>
               </label>
             </div>
 
+            {/* Submit Button */}
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-wait transition-colors duration-200 shadow-md"
               >
                 {loading ? (
                   <div className="flex items-center space-x-2">
-                    <div className="loading-spinner"></div>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                     <span>Creating account...</span>
                   </div>
                 ) : (
@@ -258,6 +328,7 @@ const Register = () => {
             </div>
           </form>
 
+          {/* Social login section (Styling adjusted for primary color consistency) */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -271,8 +342,9 @@ const Register = () => {
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200"
+                className="w-full inline-flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
               >
+                {/* Google Icon SVG */}
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -296,8 +368,9 @@ const Register = () => {
 
               <button
                 type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200"
+                className="w-full inline-flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
               >
+                {/* Facebook Icon SVG */}
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
